@@ -28,8 +28,8 @@ system, "ln -fns ../../ mask_code";
 system, "ln -fns build_run3_seq.madx buildsequence.madx";
 
 ! Define the optics
-!system, "ln -fns /afs/cern.ch/eng/lhc/optics/runIII/RunIII_dev/2022_V1/PROTON/opticsfile.27 myoptics.madx";
-system, "ln -fns /afs/cern.ch/eng/lhc/optics/runIII/RunIII_dev/2021/PROTON/opticsfile.27 myoptics.madx";
+system, "ln -fns /afs/cern.ch/eng/lhc/optics/runIII/RunIII_dev/2022_V1/PROTON/opticsfile.30 myoptics.madx";
+!system, "ln -fns /afs/cern.ch/eng/lhc/optics/runIII/RunIII_dev/2021/PROTON/opticsfile.27 myoptics.madx";
 par_mylhcbeam = 1;              ! LHC beam 1 (clockwise), LHC beam 2 (clockwise), LHC beam 2 (counterclockwise)
 
 ! Beam parameters
