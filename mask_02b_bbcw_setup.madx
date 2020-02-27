@@ -1,0 +1,123 @@
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+!                     Wire compensator setup
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+
+! The BBCWs are now installed in the sequence, with an arbitrary transverse position and zero current. 
+! This scripts updates those parameters as a function of the chosen optics and the machine parameters.
+
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+!                           BEAM 1
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+
+use, sequence=lhcb1;
+twiss;
+
+qx_init = table(summ, q1);
+qy_init = table(summ, q2);
+
+! TRANSVERSE POSITIONS
+! Closed Orbit at the BBCW location
+
+x_at_bbcw_l1.b1 = table(twiss, bbcw_l1.b1, x);
+y_at_bbcw_l1.b1 = table(twiss, bbcw_l1.b1, y);
+
+x_at_bbcw_l5.b1 = table(twiss, bbcw_l5.b1, x);
+y_at_bbcw_l5.b1 = table(twiss, bbcw_l5.b1, y);
+
+! Position from collimator opening (without forgetting the extra 3 mm)
+
+betagamma = BEAM%lhcb1->gamma * BEAM%lhcb1->beta;
+
+
+x_bbcw_l1.b1 :=  par_bbcw_off_l1.b1 + x_at_bbcw_l1.b1;
+x_bbcw_opp_l1.b1 :=  par_bbcw_off_l1.b1 + x_at_bbcw_l1.b1;
+
+y_bbcw_l1.b1 :=  y_at_bbcw_l1.b1 + 0.003 + par_coll_gap_l1.b1 * sqrt(table(twiss, bbcw_l1.b1, bety)*par_coll_sig/betagamma);
+y_bbcw_opp_l1.b1 :=  y_at_bbcw_l1.b1 - 0.003 - par_coll_gap_l1.b1 * sqrt(table(twiss, bbcw_l1.b1, bety)*par_coll_sig/betagamma);
+
+x_bbcw_l5.b1 :=  x_at_bbcw_l5.b1 + 0.003 + par_coll_gap_l5.b1 * sqrt(table(twiss, bbcw_l5.b1, betx)*par_coll_sig/betagamma);
+x_bbcw_opp_l5.b1 :=  x_at_bbcw_l5.b1 - 0.003 - par_coll_gap_l5.b1 * sqrt(table(twiss, bbcw_l5.b1, betx)*par_coll_sig/betagamma);
+
+y_bbcw_l5.b1 :=  par_bbcw_off_l5.b1 + y_at_bbcw_l5.b1;
+y_bbcw_opp_l5.b1 :=  par_bbcw_off_l5.b1 + y_at_bbcw_l5.b1;
+
+print, text="Transverse position of the wires on B1...";
+value, x_bbcw_l1.b1, y_bbcw_l1.b1, x_bbcw_l5.b1, y_bbcw_l5.b1;
+value, x_bbcw_opp_l1.b1, y_bbcw_opp_l1.b1, x_bbcw_opp_l5.b1, y_bbcw_opp_l5.b1;
+
+print, text="Closed orbit a the wires";
+value, x_at_bbcw_l1.b1, y_at_bbcw_l1.b1, x_at_bbcw_l5.b1, y_at_bbcw_l5.b1;
+
+
+! CURRENTS AND MATCHING
+
+! Save Quad Values 
+
+kq4.l1b1_BM = kq4.l1b1;
+kq4.r1b1_BM = kq4.r1b1;
+
+kq4.l5b1_BM = kq4.l5b1;
+kq4.r5b1_BM = kq4.r5b1;
+
+I_bbcw_l1.b1_N := par_I_bbcw_l1.b1/(qelect*clight*beam%lhcb1->npart);
+if(par_jaw_power_l1.b1>1){
+    I_bbcw_opp_l1.b1_N := I_bbcw_l1.b1_N;
+}
+
+match;
+global, q1=qx_init, q2=qy_init;
+vary, name=kq4.l1b1, step=1.0E-7;
+vary, name=kq4.r1b1, step=1.0E-7;
+lmdif, calls=100, tolerance=1.0E-21;
+endmatch;
+
+twiss;
+
+I_bbcw_l5.b1_N := par_I_bbcw_l5.b1/(qelect*clight*beam%lhcb1->npart);
+if(par_jaw_power_l5.b1>1){
+    I_bbcw_opp_l5.b1_N := I_bbcw_l5.b1_N;
+}
+
+match;
+global, q1=qx_init, q2=qy_init;
+vary, name=kq4.l5b1, step=1.0E-7;
+vary, name=kq4.r5b1, step=1.0E-7;
+lmdif, calls=100, tolerance=1.0E-21;
+endmatch;
+
+twiss;
+
+value, table(summ, q1)-qx_init, table(summ, q2)-qy_init;
+
+! PRINT LENSES IN FILE
+
+system, "sed -i '$d' bb_lenses.dat"; ! removes last line: NEXT
+assign, echo=bb_lenses.dat;
+
+if(I_bbcw_l1.b1_N<>0){
+    printf, text="bbcw_l1.b1 0 %f %f %f %f %f", value= (bbcw_l1.b1->sigx)^2*1e6, (bbcw_l1.b1->sigy)^2*1e6, 1.0*(bbcw_l1.b1->xma-x_at_bbcw_l1.b1)*1e3, 1.0*(bbcw_l1.b1->yma-y_at_bbcw_l1.b1)*1e3, bbcw_l1.b1->charge;
+    if(par_jaw_power_l1.b1>1){
+        printf, text="bbcw_opp_l1.b1 0 %f %f %f %f %f", value= (bbcw_opp_l1.b1->sigx)^2*1e6, (bbcw_opp_l1.b1->sigy)^2*1e6, 1.0*(bbcw_opp_l1.b1->xma-x_at_bbcw_l1.b1)*1e3, 1.0*(bbcw_opp_l1.b1->yma-y_at_bbcw_l1.b1)*1e3, bbcw_opp_l1.b1->charge;
+    }
+}
+
+if(I_bbcw_l5.b1_N<>0){
+    printf, text="bbcw_l5.b1 0 %f %f %f %f %f", value= (bbcw_l5.b1->sigx)^2*1e6, (bbcw_l5.b1->sigy)^2*1e6, 1.0*(bbcw_l5.b1->xma-x_at_bbcw_l5.b1)*1e3, 1.0*(bbcw_l5.b1->yma-y_at_bbcw_l5.b1)*1e3, bbcw_l5.b1->charge;
+    if(par_jaw_power_l5.b1>1){
+        printf, text="bbcw_opp_l5.b1 0 %f %f %f %f %f", value= (bbcw_opp_l5.b1->sigx)^2*1e6, (bbcw_opp_l5.b1->sigy)^2*1e6, 1.0*(bbcw_opp_l5.b1->xma-x_at_bbcw_l5.b1)*1e3, 1.0*(bbcw_opp_l5.b1->yma-y_at_bbcw_l5.b1)*1e3, bbcw_opp_l5.b1->charge;
+    }
+}
+
+print, text="NEXT";
+assign, echo=terminal;
+
+! MATCHING
+! TODO -> Using the 2 Q4
+
+
+
+
+
+
+
+

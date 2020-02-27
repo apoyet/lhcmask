@@ -1,0 +1,161 @@
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+!             Wire compensator installation
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+
+! With the important input of K.Skoufaris
+
+! This file modifies the two sequences to install the wires as installed
+! in the next LHC Run 3. 
+! WARNING/TODO: Not valid for lhcb4! 
+! We install 2 wires per collimators, on the left side of the IP1/5 for B1, right side for B2.
+
+! The s position of the wires is therefore locked to be the s position of the corresponding
+! collimator.
+
+! Wire L1 B1 -> TCTPV.4L1.B1
+! Wire L5 B1 -> TCTPH.4L5.B1
+
+! Wire R1 B2 -> TCTPV.4R1.B2
+! Wire R5 B2 -> TCTPH.4R5.B2
+
+
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+!                           BEAM 1
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+
+print, text="Installing wires in lhcb1 sequence...";
+use, sequence=lhcb1;
+
+!======= SIGMA OF THE BBCW =========!
+
+sigx_bbcw.b1 = (2*1e-3)/6; ! in [m]
+sigy_bbcw.b1 = (2*1e-3)/6; ! in [m]
+
+!======== DEFINE THE WIRE MARKERS ========!
+
+mar_bbcw_l1.b1: marker;
+mar_bbcw_l5.b1: marker;
+
+!======== INSTALL THE WIRE MARKERS =======!
+
+seqedit, sequence=lhcb1;
+flatten;
+install, element=mar_bbcw_l1.b1, at=0, from=TCTPV.4L1.B1;
+install, element=mar_bbcw_l5.b1, at=0, from=TCTPH.4L5.B1;
+flatten;
+endedit;
+
+!========== TRANSVERSE POSITION =========!
+! The initial transverse position of the wire is arbitrary 
+! since the current is set to zero first/
+! Those settings will be updated later on.
+
+x_bbcw_l1.b1 := 0;
+y_bbcw_l1.b1 := 0.01;
+
+x_bbcw_l5.b1 := 0.01;
+y_bbcw_l5.b1 := 0;
+
+x_bbcw_opp_l1.b1 := 0;
+y_bbcw_opp_l1.b1 := -0.01;
+
+x_bbcw_opp_l5.b1 := -0.01;
+y_bbcw_opp_l5.b1 := 0;
+
+!========== CURRENT =========!
+
+I_bbcw_l1.b1_N := 0;
+I_bbcw_l5.b1_N := 0;
+
+I_bbcw_opp_l1.b1_N := 0;
+I_bbcw_opp_l5.b1_N := 0;
+
+!======= INSTALL THE WIRES ========!
+
+seqedit, sequence=lhcb1;
+flatten;
+
+bbcw_l1.b1: beambeam, charge:=-I_bbcw_l1.b1_N, sigx=sigx_bbcw.b1, sigy=sigy_bbcw.b1, xma:=x_bbcw_l1.b1, yma:=y_bbcw_l1.b1, bbshape=1, bbdir=-1;
+
+bbcw_opp_l1.b1: beambeam, charge:=-I_bbcw_opp_l1.b1_N, sigx=sigx_bbcw.b1, sigy=sigy_bbcw.b1, xma:=x_bbcw_opp_l1.b1, yma:=y_bbcw_opp_l1.b1, bbshape=1, bbdir=-1;
+
+bbcw_l5.b1: beambeam, charge:=-I_bbcw_l5.b1_N, sigx=sigx_bbcw.b1, sigy=sigy_bbcw.b1, xma:=x_bbcw_l5.b1, yma:=y_bbcw_l5.b1, bbshape=1, bbdir=-1;
+
+bbcw_opp_l5.b1: beambeam, charge:=-I_bbcw_opp_l5.b1_N, sigx=sigx_bbcw.b1, sigy=sigy_bbcw.b1, xma:=x_bbcw_opp_l5.b1, yma:=y_bbcw_opp_l5.b1, bbshape=1, bbdir=-1;
+
+replace, element=mar_bbcw_l1.b1, by=bbcw_l1.b1;
+install, element=bbcw_opp_l1.b1, at=0, from=bbcw_l1.b1;
+replace, element=mar_bbcw_l5.b1, by=bbcw_l5.b1;
+install, element=bbcw_opp_l5.b1, at=0, from=bbcw_l5.b1;
+
+flatten;
+endedit;
+
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+!                           BEAM 2
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+
+print, text="Installing wires in lhcb2 sequence...";
+use, sequence=lhcb2;
+
+!======= SIGMA OF THE BBCW =========!
+
+sigx_bbcw.b2 = (2*1e-3)/6; ! in [m]
+sigy_bbcw.b2 = (2*1e-3)/6; ! in [m]
+
+!======== DEFINE THE WIRE MARKERS ========!
+
+mar_bbcw_r1.b2: marker;
+mar_bbcw_r5.b2: marker;
+
+!======== INSTALL THE WIRE MARKERS =======!
+
+seqedit, sequence=lhcb2;
+flatten;
+install, element=mar_bbcw_r1.b2, at=0, from=TCTPV.4R1.B2;
+install, element=mar_bbcw_r5.b2, at=0, from=TCTPH.4R5.B2;
+flatten;
+endedit;
+
+!========== TRANSVERSE POSITION =========!
+! The initial transverse position of the wire is arbitrary 
+! since the current is set to zero first/
+! Those settings will be updated later on.
+
+x_bbcw_r1.b2 := 0;
+y_bbcw_r1.b2 := 0.01;
+
+x_bbcw_r5.b2 := 0.01;
+y_bbcw_r5.b2 := 0;
+
+x_bbcw_opp_r1.b2 := 0;
+y_bbcw_opp_r1.b2 := -0.01;
+
+x_bbcw_opp_r5.b2 := -0.01;
+y_bbcw_opp_r5.b2 := 0;
+
+!========== CURRENT =========!
+
+I_bbcw_r1.b2_N := 0;
+I_bbcw_r5.b2_N := 0;
+
+!======= INSTALL THE WIRES ========!
+
+seqedit, sequence=lhcb2;
+flatten;
+
+bbcw_r1.b2: beambeam, charge:=-I_bbcw_r1.b2_N, sigx=sigx_bbcw.b2, sigy=sigy_bbcw.b2, xma:=x_bbcw_r1.b2, yma:=y_bbcw_r1.b2, bbshape=1, bbdir=-1;
+
+bbcw_opp_r1.b2: beambeam, charge:=-I_bbcw_r1.b2_N, sigx=sigx_bbcw.b2, sigy=sigy_bbcw.b2, xma:=x_bbcw_opp_r1.b2, yma:=y_bbcw_opp_r1.b2, bbshape=1, bbdir=-1;
+
+bbcw_r5.b2: beambeam, charge:=-I_bbcw_r5.b2_N, sigx=sigx_bbcw.b2, sigy=sigy_bbcw.b2, xma:=x_bbcw_r5.b2, yma:=y_bbcw_r5.b2, bbshape=1, bbdir=-1;
+
+bbcw_opp_r5.b2: beambeam, charge:=-I_bbcw_r5.b2_N, sigx=sigx_bbcw.b2, sigy=sigy_bbcw.b2, xma:=x_bbcw_opp_r5.b2, yma:=y_bbcw_opp_r5.b2, bbshape=1, bbdir=-1;
+
+replace, element=mar_bbcw_r1.b2, by=bbcw_r1.b2;
+install, element=bbcw_opp_r1.b2, at=0, from=bbcw_r1.b2;
+replace, element=mar_bbcw_r5.b2, by=bbcw_r5.b2;
+install, element=bbcw_opp_r5.b2, at=0, from=bbcw_r5.b2;
+
+flatten;
+endedit;
