@@ -114,12 +114,12 @@ par_nho_IR8 = 11;                    ! number of slices for head-on in IR8 (betw
 
 ! BEAM 1
 
-par_I_bbcw_l1.b1 = 350;                 ! In [A]
+par_I_bbcw_l1.b1 = 100;                 ! In [A]
 par_coll_gap_l1.b1 = 8.5;               ! In [sigma]
 par_jaw_power_l1.b1 = 2;                ! 1/2 for 1/2 jaws powering
 par_bbcw_off_l1.b1 = 0;                 ! In [m], 5th-axis offset
 
-par_I_bbcw_l5.b1 = 350;                 ! In [A]
+par_I_bbcw_l5.b1 = 100;                 ! In [A]
 par_coll_gap_l5.b1 = 8.5;               ! In [sigma]
 par_jaw_power_l5.b1 = 2;                ! 1/2 for 1/2 jaws powering
 par_bbcw_off_l5.b1 = 0;                 ! In [m], 5th-axis offset
@@ -140,14 +140,15 @@ par_bbcw_off_r5.b2 = 0;                 ! In [m], 5th-axis offset
 !     Leveling in IP8     !
 !*************************!
 
+! VALUES FOR LHC
 ! This variables set the leveled luminosity in IP8 (dosidered if par_on_collision=1)
-par_lumi_ip8 = 2e33;                 ![Hz/cm2]
+par_lumi_ip8 = 2e32;                 ![Hz/cm2]
 
 ! These variables define the number of Head-On collisions in the 4 IPs
-par_nco_IP1 = 2592;
+par_nco_IP1 = 2544;
 par_nco_IP5 = par_nco_IP1;
-par_nco_IP2 = 2288;
-par_nco_IP8 = 2396;
+par_nco_IP2 = 2215;
+par_nco_IP8 = 2332;
 
 
 !*************************!
